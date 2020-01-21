@@ -16,6 +16,14 @@ client.on('message', function messageReceived(message){
   if(!message.content.startsWith("/")) return;
   text = message.content.slice(1);
   parts = text.match(/(?:[^\s"]+|"[^"]*")+/g);
+  for(i = 0; i < parts.length; i++) {
+    if(parts[i].endsWith("\"")) {
+      parts[i] = parts[i].slice(0, parts[i].length-1);
+    }
+    if(parts[i].startsWith("\"")) {
+      parts[i] = parts[i].slice(1);
+    }
+  }
   command = parts[0];
   args = parts.slice(1);
   cmdHandler.run(client, message.guild, message.author, command, args, message.channel);

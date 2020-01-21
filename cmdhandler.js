@@ -12,22 +12,32 @@ fs.readdir("./commandes/", function (err, files){
     if (err) return console.log(err);
     files.forEach( function cmdLoader(file){
       if (!file.endsWith(".js")) return;
-      log("Successfully loaded " + file)
-      let name = file.split(".")[0];
-      cmdModules[name] = require(`./commandes/${file}`);
-      cmdNames.push(name);
+      let cmdModule = require(`./commandes/${file}`);
+      if(cmdModule == undefined) return log(file+" missing module");
+      if(cmdModule.run == undefined) return log(file+" missing run()");
+      if(cmdModule.meta == undefined) return log(file+" missing meta");
+      if(cmdModule.meta.name == undefined) return log(file+" missing meta.name");
+      cmdNames.push(cmdModule.meta.name);
+      cmdModules[cmdModule.meta.name] = cmdModule;
+      log("Successfully loaded " + file);
     });
 });
 
 
 module.exports.run = function cmdHandler(client, guild, user, command, args, answer_channel) {
   if(!cmdNames.includes(command)) {
-    return log("command not found");
+    return answer_channel.send("Commande inconnue... ")
+      .then(msg => {
+        msg.delete(5000);
+      });
   }
   argCount = cmdModules[command].meta.argCount;
 
   if(args.length < argCount) {
-    return log("argument(s) missing, "+argCount+" required");
+    return answer_channel.send("il manque des arguments... "+argCount+" arguments requis")
+      .then(msg => {
+        msg.delete(5000);
+      });
   }
 
   cmdModules[command].run(client, guild, user, args, answer_channel);
