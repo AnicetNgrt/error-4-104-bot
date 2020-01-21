@@ -1,17 +1,6 @@
 const log = require("./commandes/utils/log.js");
+const keepAlive = require('./server');
 
-// UPTIME related code
-const express = require("express");
-const app = express();
-
-app.listen(() => log("Server started"));
-
-app.use('/ping', (req, res) => {
-  res.send(new Date());
-});
-
-
-// BOT related code
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
@@ -42,4 +31,5 @@ client.on('messageReactionRemove', message => {
 });
 */
 
+keepAlive();
 client.login(process.env.token);
